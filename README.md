@@ -1,31 +1,31 @@
 # `@local/archify-dsh`
 
-A local [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) bundle for [Archify](https://github.com/tt-a1i/archify). It packages **Archify 3.1.0** (main commit `d0c8c7e9f4e06f303389f804208d387f27019ef5`) and is not an official DeepSeek or Archify product.
+一个本地版 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 插件，封装 [Archify](https://github.com/tt-a1i/archify) **3.1.0**（`main` 提交 `d0c8c7e9f4e06f303389f804208d387f27019ef5`）。非 DeepSeek、非 Archify 官方出品。
 
-Unlike the upstream `@tt-a1i/archify-dsh@1.0.0` (which bundles Archify 3.0.1 as a Skill-only install), this bundle tracks 3.1.0 with its new diagram types (ERD, Class, Tree, Timeline, Waterfall) and adds **native model tools**.
+与上游 `@tt-a1i/archify-dsh@1.0.0`（打包 Archify 3.0.1，仅 Skill）相比，本插件跟随 3.1.0，新增 ERD / 类图 / 树 / 时间线 / 瀑布图五种图型，并内置**原生模型工具**。
 
-## What it provides
+## 提供内容
 
-1. **The `archify` skill** — a filesystem Skill provider named `archify-plugin` that scans a bundled `skills/` directory and loads the full Archify authoring/delivery workflow.
-2. **Native tools** — three model-facing tools that run the bundled Archify CLI under the calling session's file policy, so the model does not need to know where the CLI lives or shell out:
+1. **`archify` 技能** —— 一个名为 `archify-plugin` 的文件系统 Skill 提供者，扫描打包的 `skills/` 目录，加载完整的 Archify 编写/交付流程。
+2. **原生工具** —— 三个面向模型的工具，在会话文件策略下运行打包的 Archify CLI，模型无需知道 CLI 位置、也不必拼 shell 命令：
 
-| Tool | Purpose |
+| 工具 | 作用 |
 |---|---|
-| `archify_guide` | Choose the right diagram type for a question or scenario. |
-| `archify_validate` | Validate a candidate JSON and return machine-readable repair diagnostics. |
-| `archify_finalize` | Run the full gate (validate + deliver + strict check + browser check) and write the standalone HTML. |
+| `archify_guide` | 为问题或场景选择正确的图型 |
+| `archify_validate` | 校验候选 JSON，返回可执行的修复诊断 |
+| `archify_finalize` | 跑完整门禁（校验 + 交付 + 严格检查 + 浏览器检查）并产出独立 HTML |
 
-## Install
+## 安装
 
 ```bash
-dsh plugin --profile <profile> add /abs/path/to/archify-dsh
+dsh plugin --profile <profile> add /绝对路径/archify-dsh
 ```
 
-Or install this workspace directory through the Plugin Manager `install_bundle` action.
+或在本工作区目录通过插件管理器的 `install_bundle` 安装（本地目录以 link 方式挂载，改动即时生效）。
 
-## Invoke
+## 使用
 
-Either ask for the skill (which documents JSON authoring and repair), or drive the tools directly. For example:
+可以调用 `archify` 技能（它会教怎么写候选 JSON、怎么修复），也可以直接调用原生工具。例如：
 
 ```text
 Use the archify skill to map this repository's runtime architecture.
@@ -33,18 +33,18 @@ Show 8–12 core components, one primary path, external dependencies, and trust 
 After delivery, return the exact workspace paths of the specification JSON and the HTML artifact.
 ```
 
-Generated JSON and HTML are normal workspace files and do not automatically appear in the Web Produced Files strip; ask for their **exact workspace paths** and open them from the workspace.
+生成的 JSON 与 HTML 是普通工作区文件，不会自动出现在 Web 的「Produced Files」条里；请让 Agent 返回**确切的工作区路径**，再从工作区打开。
 
-## Uninstall
+## 卸载
 
 ```bash
 dsh plugin --profile <profile> remove @local/archify-dsh
 ```
 
-## Activation and scope
+## 激活与作用域
 
-The bundle's `cordis.patch.yml` contains a `!!js` expression evaluated by the DSH host outside the agent sandbox. It uses Node's built-in `path` and `module` helpers to locate this installed package's `skills` directory; it does not fetch data, read credentials, spawn processes, or register a second permission path. The tool module (`lib/tools.js`) locates the same CLI from its own module URL.
+`cordis.patch.yml` 含一个 `!!js` 表达式，由 DSH 宿主在 Agent 沙箱外求值：它只用 Node 内置的 `path` 与 `module` 定位本包的 `skills` 目录，不抓数据、不读凭据、不起进程、不开第二条权限路径。工具模块（`lib/tools.js`）则从自身模块 URL 定位同一 CLI。
 
-The tools declare `@deepseek-ai/dsh-tools` as an optional peer dependency (provided by the DSH host) and resolve the CLI under the session's file policy via `ctx.sandbox.confine` + `ctx.subprocess.spawn`. There is no telemetry, credentials handling, background service, or install hook. The bundled Skill has an optional notification-only update checker and bounded network access for authored remote brand assets; neither it nor the tools upgrade this plugin automatically.
+工具把 `@deepseek-ai/dsh-tools` 声明为**可选 peer 依赖**（由 DSH 宿主提供），并通过 `ctx.sandbox.confine` + `ctx.subprocess.spawn` 在会话文件策略下运行 CLI。无遥测、无凭据处理、无后台服务、无 install 钩子。打包的 Skill 有一个仅通知的稳定更新检查器、以及为作者标注的品牌资源保留的受限网络路径；两者都不会自动升级本插件。
 
-`release.json` records the immutable Skill source commit and the acceptance host version.
+`release.json` 记录不可变的 Skill 源提交与验收宿主版本。
