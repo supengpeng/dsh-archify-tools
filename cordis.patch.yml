@@ -1,0 +1,9 @@
+- insert:
+    - id: archify-skill-filesystem
+      name: '@deepseek-ai/dsh-skill-filesystem'
+      config:
+        providerName: archify-plugin
+        includeDefaultRoots: false
+        bundledSkillDir: !!js process.getBuiltinModule('node:path').join(process.getBuiltinModule('node:path').dirname(process.getBuiltinModule('node:module').createRequire(baseUrl).resolve('@local/archify-dsh/package.json')), 'skills')
+    - id: archify-tools
+      name: '@local/archify-dsh/tools'
